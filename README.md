@@ -1,6 +1,36 @@
 # Context Window Inspector
 
-`context-window-inspector` is a local CLI for inspecting what is observable in Claude Code and Codex session context. It separates exact token usage reported by the tools from payload-size attribution derived from local transcripts.
+[![Release](https://img.shields.io/github/v/release/androidZzT/context-window-inspector?display_name=tag)](https://github.com/androidZzT/context-window-inspector/releases)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+Inspect Claude Code and OpenAI Codex context-window usage, token attribution, prompt-cache usage, and API-equivalent cost from local session logs.
+
+`context-window-inspector` is a local Python CLI for developers who want to understand what is filling an LLM coding agent's context window. It separates exact token usage reported by Claude Code or Codex from approximate payload attribution derived from local transcripts.
+
+If this helps you debug LLM context budgets, a GitHub star helps other Claude Code and Codex users find it.
+
+## Features
+
+- Inspect Claude Code and Codex local JSONL transcripts.
+- Show exact input, cached input, cache write/read, output, reasoning, and total token counts.
+- Estimate context-window attribution by bucket: assistant messages, tool calls, tool results, system prompts, summaries, hooks, skills, and MCP tools.
+- Render compact statusline output for coding-agent terminals.
+- Estimate API-equivalent cost for supported OpenAI and Anthropic models.
+
+## Install
+
+Install from the latest GitHub release:
+
+```bash
+python3 -m pip install "context-window-inspector @ https://github.com/androidZzT/context-window-inspector/releases/download/v0.1.0/context_window_inspector-0.1.0-py3-none-any.whl"
+```
+
+Or install from a local checkout:
+
+```bash
+python3 -m pip install -e .
+```
 
 ## Usage
 
@@ -31,7 +61,7 @@ cw-inspect statusline claude --latest --no-color --ascii
 Example shape:
 
 ```text
-gpt-5.5 | ctx 26.2% [asst10.1====|tool8.1===|call3.1|sum----------------] 68K/258K
+gpt-5.5 | ctx 52.3% [tool 20.3][sum 14.6][asst 9.2][call 5.7][sys 2.5][+ 0.1] 135K/258K
 ```
 
 Install helpers:
