@@ -1,89 +1,132 @@
-# Context Window Inspector
+<div align="center">
+  <img src="docs/assets/hero.png" alt="Context Window Inspector" width="100%" />
+</div>
 
-[![Release](https://img.shields.io/github/v/release/androidZzT/context-window-inspector?display_name=tag)](https://github.com/androidZzT/context-window-inspector/releases)
-[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+<h1 align="center">Context Window Inspector</h1>
 
-Inspect Claude Code and OpenAI Codex context-window usage, token attribution, prompt-cache usage, and API-equivalent cost from local session logs.
+<p align="center">
+  <a href="https://github.com/androidZzT/context-window-inspector/releases"><img src="https://img.shields.io/github/v/release/androidZzT/context-window-inspector?display_name=tag" alt="Release" /></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/python-3.10%2B-blue" alt="Python 3.10+" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green.svg" alt="MIT License" /></a>
+  <a href="https://github.com/androidZzT/context-window-inspector/stargazers"><img src="https://img.shields.io/github/stars/androidZzT/context-window-inspector?style=social" alt="Stars" /></a>
+</p>
 
-`context-window-inspector` is a local Python CLI for developers who want to understand what is filling an LLM coding agent's context window. It separates exact token usage reported by Claude Code or Codex from approximate payload attribution derived from local transcripts.
+<p align="center">
+  Read your Claude Code and Codex session logs locally. See <strong>where the tokens went</strong> — by bucket, by request, with prompt-cache and API-equivalent cost.
+</p>
 
-If this helps you debug LLM context budgets, a GitHub star helps other Claude Code and Codex users find it.
+<p align="center">
+  <strong>English</strong> · <a href="README.zh-CN.md">简体中文</a>
+</p>
 
-## Features
+---
 
-- Inspect Claude Code and Codex local JSONL transcripts.
-- Show exact input, cached input, cache write/read, output, reasoning, and total token counts.
-- Estimate context-window attribution by bucket: assistant messages, tool calls, tool results, system prompts, summaries, hooks, skills, and MCP tools.
-- Render compact statusline output for coding-agent terminals.
-- Estimate API-equivalent cost for supported OpenAI and Anthropic models.
+## Why
+
+You're running Claude Code or Codex. The context bar creeps toward 80%, the agent slows down, and you have no idea what's actually in there. Tool results? An MCP server you forgot you enabled? Six months of summaries?
+
+`cw-inspect` reads the same local JSONL transcripts the CLI already writes, then tells you:
+
+- **Exact** input / cached / cache-write / cache-read / output / reasoning tokens (from the recorded `usage` field — not estimated).
+- **Approximate** attribution by bucket: tool results, assistant messages, tool calls, system prompts, summaries, hooks, skills, MCP tools.
+- **API-equivalent cost** per request and per session, using public model prices.
+
+No API key. No network calls. Just the files already on your disk.
+
+> ⭐ If this saves you a "where did my context go?" investigation, a star helps other Claude Code and Codex users find it.
+
+## Statusline at a glance
+
+<div align="center">
+  <img src="docs/assets/statusline.png" alt="cw-inspect statusline output" width="100%" />
+</div>
+
+A one-line, colored bar you can drop into Claude Code's `statusLine` or print from your shell. The widest segment is usually `tool` — that's the signal.
+
+Screenshots are representative terminal renderings. Live values and table widths vary by session, model, terminal width, and current transcript contents.
+
+## Full report
+
+<div align="center">
+  <img src="docs/assets/report.png" alt="cw-inspect markdown report" width="100%" />
+</div>
+
+Markdown by default, JSON with `--json`. Pipe it anywhere.
 
 ## Install
 
-Install the CLI from the latest GitHub release:
+Install the CLI from the latest release:
 
 ```bash
-python3 -m pip install "context-window-inspector @ https://github.com/androidZzT/context-window-inspector/releases/download/v0.1.0/context_window_inspector-0.1.0-py3-none-any.whl"
+python3 -m pip install \
+  "context-window-inspector @ https://github.com/androidZzT/context-window-inspector/releases/download/v0.1.0/context_window_inspector-0.1.0-py3-none-any.whl"
 ```
 
-Or install the CLI from a local checkout:
+Or install the CLI from a checkout:
 
 ```bash
+git clone https://github.com/androidZzT/context-window-inspector.git
+cd context-window-inspector
 python3 -m pip install -e .
 ```
+
+Requires Python 3.10+. Zero runtime dependencies.
 
 The wheel installs the `cw-inspect` CLI. The Codex plugin below is a repo-local marketplace plugin, so keep a source checkout when you want Codex to load it.
 
 ## Usage
 
-```bash
-python3 -m context_window_inspector codex --latest
-python3 -m context_window_inspector claude --latest
-python3 -m context_window_inspector statusline codex
+Inspect the most recent session:
 
-# After installing the package:
-cw-inspect codex --latest
-cw-inspect codex --session <session-id-or-path>
+```bash
 cw-inspect claude --latest
-cw-inspect claude --session <session-id-or-path> --json
-cw-inspect statusline claude --stdin
+cw-inspect codex  --latest
 ```
 
-The default report is Markdown. Use `--json` for machine-readable output and `--all-turns` to include every exact usage event.
-
-## Status Line
-
-The status line renderer prints a compact, colored progress bar segmented by estimated window share:
+Pick a specific session by id prefix or path:
 
 ```bash
-cw-inspect statusline codex --latest
-cw-inspect statusline claude --latest --no-color --ascii
+cw-inspect claude --session 137d4ea4
+cw-inspect codex  --session ~/.codex/sessions/.../rollout-XXXX.jsonl
 ```
 
-Example shape:
+Useful flags:
 
-```text
-gpt-5.5 | ctx 52.3% [tool 20.3][sum 14.6][asst 9.2][call 5.7][sys 2.5][+ 0.1] 135K/258K
-```
+| Flag | What it does |
+|---|---|
+| `--json` | Machine-readable output |
+| `--all-turns` | Include every per-turn usage event |
+| `--latest` | Pick the newest session in `~/.claude/projects` or `~/.codex/sessions` |
 
-Install helpers:
+## Statusline integration
+
+Print the compact bar yourself:
 
 ```bash
-cw-inspect install-statusline claude
-cw-inspect install-statusline codex
+cw-inspect statusline claude --latest
+cw-inspect statusline codex  --latest --no-color --ascii
 ```
 
-Claude Code supports command status lines, so the installer wraps the existing `~/.claude/statusline.sh` and appends the context split. Codex CLI currently supports built-in `[tui].status_line` identifiers only; the installer enables native `context-used` and `used-tokens`, and installs `~/.codex/statusline-cwi.sh` for the detailed split.
+Wire it into the CLI you already use:
 
-Codex TUI reads status line items when the interface starts or when the `/statusline` menu saves a new selection. After running the installer, restart Codex or open `/statusline` to apply the native items. The detailed `asst/tool/call/sum` split is available from `~/.codex/statusline-cwi.sh`; it is not injected into the Codex TUI status line because Codex does not currently accept external status line commands.
+```bash
+cw-inspect install-statusline claude   # wraps ~/.claude/statusline.sh
+cw-inspect install-statusline codex    # writes ~/.codex/statusline-cwi.sh + enables native items
+cw-inspect install-statusline all
+```
 
-## Codex Plugin
+Notes:
 
-This repo also ships a local Codex plugin at `plugins/context-window-inspector/`. The plugin exposes a `get_codex_context_window` MCP tool so Codex can answer questions such as "what is filling my context window?" from inside a session.
+- **Claude Code** supports command-driven status lines, so the installer wraps your existing `statusline.sh` and appends the context split.
+- **Codex** currently only accepts built-in `[tui].status_line` identifiers. The installer enables native `context-used` and `used-tokens`, and writes `~/.codex/statusline-cwi.sh` for the detailed breakdown — call it from your terminal prompt or a tmux status bar. Restart Codex (or open `/statusline`) after installing.
+
+## Codex plugin (MCP)
+
+`plugins/context-window-inspector/` ships a Codex plugin that exposes a `get_codex_context_window` MCP tool, so Codex itself can answer "what's filling my context window?" mid-session.
 
 The plugin is loaded from this repository checkout; it is not installed into Codex by the Python wheel.
 
-To install it as a local marketplace, add this to `~/.codex/config.toml`:
+Add to `~/.codex/config.toml`:
 
 ```toml
 [marketplaces.context-window-inspector]
@@ -94,22 +137,72 @@ source = "/path/to/context-window-inspector"
 enabled = true
 ```
 
-Restart Codex after editing the config. The plugin can return a readable summary, compact statusline text, or JSON. It does not add a custom TUI statusline segment because Codex currently only supports built-in statusline items.
+Restart Codex. Ask the agent. It can return Markdown, the compact statusline string, or JSON.
 
-## Attribution Model
+## How attribution works
 
-Exact token values come only from recorded usage fields:
+Two layers, kept separate on purpose:
 
-- Codex: `event_msg.token_count.info`
-- Claude Code: assistant `message.usage`
+**1. Exact tokens — from the provider, not us.**
 
-Everything else is reported as observable payload size by bucket, using record counts, character counts, byte counts, and examples. The CLI does not estimate tokens by default.
+| Provider | Source field |
+|---|---|
+| Codex | `event_msg.token_count.info` |
+| Claude Code | assistant `message.usage` |
 
-For Claude Code status lines, context percentage follows Claude Code's official input-only formula: `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`. Hook attribution is deliberately narrow: hook execution logs, echoed tool inputs, and debug stdout are not counted as context. Only `additionalContext`, `systemMessage`, stdout from context-bearing prompt/session events, and blocking errors are attributed to `hooks`.
+If the provider didn't record it, we don't show it.
 
-## Cost Model
+**2. Bucket attribution — observable payload, not a tokenizer guess.**
 
-Reports include an estimated API-equivalent cost when a public price is configured for the recorded model. This is not an authoritative bill for Codex subscriptions, Claude Pro/Max, or provider-specific enterprise terms.
+For each transcript record we count bytes and characters and bin them into buckets (`tool_results`, `assistant_messages`, `tool_calls`, `system_or_base_instructions`, `summaries`, `developer_or_mode_instructions`, `mcp_or_dynamic_tools`, `hooks`, `skills`, `user_messages`). The split percentages allocate the **latest exact token count** across buckets weighted by byte size, so they're approximate by design. We don't run a tokenizer.
 
-- OpenAI/Codex: `cached_input_tokens` is priced as the cached subset of `input_tokens`; `reasoning_output_tokens` is treated as a detail of `output_tokens`, not an extra charge.
-- Claude: `cache_creation_input_tokens`, `cache_read_input_tokens`, and `output_tokens` are priced separately. When Claude records `cache_creation.ephemeral_5m_input_tokens` and `ephemeral_1h_input_tokens`, those durations use their distinct cache write rates.
+For Claude Code statuslines, the context percentage uses Claude Code's own input-only formula: `input_tokens + cache_creation_input_tokens + cache_read_input_tokens`.
+
+Hook attribution is deliberately narrow. Hook execution logs, echoed tool inputs, and debug stdout are **not** counted as context. Only `additionalContext`, `systemMessage`, stdout from context-bearing prompt/session events, and blocking errors land in the `hooks` bucket.
+
+## Cost model
+
+Reports include an API-equivalent cost when a public price is configured for the model. Read this as "what would this look like on the API meter," not as "what your subscription will be billed."
+
+- **OpenAI / Codex**: `cached_input_tokens` is priced as the cached subset of `input_tokens`. `reasoning_output_tokens` is treated as a detail of `output_tokens`, not an extra charge.
+- **Claude**: `cache_creation_input_tokens`, `cache_read_input_tokens`, and `output_tokens` are priced separately. When Claude reports `cache_creation.ephemeral_5m_input_tokens` and `ephemeral_1h_input_tokens`, each duration uses its own cache-write rate.
+
+Public price tables live in [`src/context_window_inspector/pricing.py`](src/context_window_inspector/pricing.py). PRs welcome when prices change.
+
+## What this is not
+
+- Not a billing system. Estimates can drift from your invoice.
+- Not a tokenizer. Bucket splits are byte-weighted approximations.
+- Not a cloud service. Everything runs against files on your machine.
+
+## Project layout
+
+```
+src/context_window_inspector/
+  cli.py          # argparse entry point
+  claude.py       # Claude Code JSONL parser
+  codex.py        # Codex JSONL parser
+  models.py       # ExactUsage / SessionReport / bucket types
+  pricing.py      # public price tables, cost estimator
+  reporting.py    # markdown + JSON renderers
+  statusline.py   # compact bar renderer
+  install.py      # statusline installers
+plugins/
+  context-window-inspector/   # Codex MCP plugin
+tests/                          # parser, pricing, statusline, plugin tests
+```
+
+## Contributing
+
+```bash
+python3 -m pytest
+PYTHONPATH=src python3 -m context_window_inspector codex --latest
+```
+
+See [`AGENTS.md`](AGENTS.md) for module conventions. Keep parsing, aggregation, and rendering in separate modules; provider-specific transcript handling stays out of the CLI layer.
+
+Issues and PRs welcome. If a parser drops a field your provider records, open an issue with a redacted snippet and which CLI version produced it.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
