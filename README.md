@@ -20,17 +20,19 @@ If this helps you debug LLM context budgets, a GitHub star helps other Claude Co
 
 ## Install
 
-Install from the latest GitHub release:
+Install the CLI from the latest GitHub release:
 
 ```bash
 python3 -m pip install "context-window-inspector @ https://github.com/androidZzT/context-window-inspector/releases/download/v0.1.0/context_window_inspector-0.1.0-py3-none-any.whl"
 ```
 
-Or install from a local checkout:
+Or install the CLI from a local checkout:
 
 ```bash
 python3 -m pip install -e .
 ```
+
+The wheel installs the `cw-inspect` CLI. The Codex plugin below is a repo-local marketplace plugin, so keep a source checkout when you want Codex to load it.
 
 ## Usage
 
@@ -78,6 +80,8 @@ Codex TUI reads status line items when the interface starts or when the `/status
 ## Codex Plugin
 
 This repo also ships a local Codex plugin at `plugins/context-window-inspector/`. The plugin exposes a `get_codex_context_window` MCP tool so Codex can answer questions such as "what is filling my context window?" from inside a session.
+
+The plugin is loaded from this repository checkout; it is not installed into Codex by the Python wheel.
 
 To install it as a local marketplace, add this to `~/.codex/config.toml`:
 
