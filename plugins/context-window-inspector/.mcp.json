@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "context-window-inspector": {
+      "command": "python3",
+      "args": [
+        "./scripts/context_window_mcp.py"
+      ],
+      "cwd": "."
+    }
+  }
+}

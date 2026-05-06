@@ -75,6 +75,23 @@ Claude Code supports command status lines, so the installer wraps the existing `
 
 Codex TUI reads status line items when the interface starts or when the `/statusline` menu saves a new selection. After running the installer, restart Codex or open `/statusline` to apply the native items. The detailed `asst/tool/call/sum` split is available from `~/.codex/statusline-cwi.sh`; it is not injected into the Codex TUI status line because Codex does not currently accept external status line commands.
 
+## Codex Plugin
+
+This repo also ships a local Codex plugin at `plugins/context-window-inspector/`. The plugin exposes a `get_codex_context_window` MCP tool so Codex can answer questions such as "what is filling my context window?" from inside a session.
+
+To install it as a local marketplace, add this to `~/.codex/config.toml`:
+
+```toml
+[marketplaces.context-window-inspector]
+source_type = "local"
+source = "/path/to/context-window-inspector"
+
+[plugins."context-window-inspector@context-window-inspector"]
+enabled = true
+```
+
+Restart Codex after editing the config. The plugin can return a readable summary, compact statusline text, or JSON. It does not add a custom TUI statusline segment because Codex currently only supports built-in statusline items.
+
 ## Attribution Model
 
 Exact token values come only from recorded usage fields:

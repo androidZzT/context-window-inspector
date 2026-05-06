@@ -1,0 +1,42 @@
+{
+  "name": "context-window-inspector",
+  "version": "0.1.0",
+  "description": "Inspect Codex context-window usage, token attribution, and estimated cost from local session logs.",
+  "author": {
+    "name": "context-window-inspector contributors",
+    "url": "https://github.com/androidZzT/context-window-inspector"
+  },
+  "homepage": "https://github.com/androidZzT/context-window-inspector",
+  "repository": "https://github.com/androidZzT/context-window-inspector",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "context-window",
+    "token-usage",
+    "llm-observability",
+    "prompt-budget"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Context Window Inspector",
+    "shortDescription": "Inspect Codex context usage and token attribution.",
+    "longDescription": "Context Window Inspector adds a Codex tool for reading local session logs and reporting exact context-window usage, estimated bucket attribution, and API-equivalent cost.",
+    "developerName": "context-window-inspector contributors",
+    "category": "Engineering",
+    "capabilities": [
+      "Read",
+      "Interactive"
+    ],
+    "websiteURL": "https://github.com/androidZzT/context-window-inspector",
+    "privacyPolicyURL": "https://github.com/androidZzT/context-window-inspector",
+    "termsOfServiceURL": "https://github.com/androidZzT/context-window-inspector/blob/main/LICENSE",
+    "defaultPrompt": [
+      "Show my Codex context window usage.",
+      "What is filling this Codex context?",
+      "Inspect the latest Codex token budget."
+    ],
+    "brandColor": "#0EA5E9",
+    "screenshots": []
+  }
+}

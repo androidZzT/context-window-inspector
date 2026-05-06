@@ -1,0 +1,20 @@
+{
+  "name": "context-window-inspector",
+  "interface": {
+    "displayName": "Context Window Inspector"
+  },
+  "plugins": [
+    {
+      "name": "context-window-inspector",
+      "source": {
+        "source": "local",
+        "path": "./plugins/context-window-inspector"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Engineering"
+    }
+  ]
+}
